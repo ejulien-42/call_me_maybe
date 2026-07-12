@@ -32,39 +32,41 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """Entry point: resolve each prompt to a function call and write it."""
-    args = parse_args()
-
     try:
-        parser = Parser()
-        functions = parser.parse_def(args.functions_definition)
-        prompts = parser.parse_call(args.input)
-    except ParseError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    print("Loading model...")
-    llm = Small_LLM_Model()
-    results = []
-    for entry in prompts:
-        print(f"Resolving: {entry.prompt!r}")
-        pipeline = GenerationPipeline(
-            model=llm,
-            prompt=entry,
-            functions_definition=functions,
-        )
+        args = parse_args()
         try:
-            pipeline.generate_output()
-        except Exception as e:
-            print(f"  skipped, could not resolve: {e}")
-            continue
-        results.append(pipeline.output)
-        print(f"  -> {pipeline.output}")
+            parser = Parser()
+            functions = parser.parse_def(args.functions_definition)
+            prompts = parser.parse_call(args.input)
+        except ParseError as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+        print("Loading model...")
+        llm = Small_LLM_Model()
+        results = []
+        for entry in prompts:
+            print(f"Resolving: {entry.prompt!r}")
+            pipeline = GenerationPipeline(
+                model=llm,
+                prompt=entry,
+                functions_definition=functions,
+            )
+            try:
+                pipeline.generate_output()
+            except Exception as e:
+                print(f"  skipped, could not resolve: {e}")
+                continue
+            results.append(pipeline.output)
+            print(f"  -> {pipeline.output}")
 
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
-    print(f"\nWrote {len(results)}/{len(prompts)} results to {output_path}")
-
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+        print(f"\nWrote {len(results)}/{len(prompts)} results to {output_path}")
+    except Exception as e:
+        print(e)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
