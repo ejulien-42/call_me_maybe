@@ -7,13 +7,13 @@ MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
 .PHONY: install run debug clean lint lint-strict
 
 install:
-	uv sync
+	$(UV) sync
 
 run:
-	uv run $(PYTHON) -m src
+	$(UV) run $(PYTHON) -m src
 
 debug:
-	uv run $(PYTHON) -m pdb -m src
+	$(UV) run $(PYTHON) -m pdb -m src
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
@@ -21,9 +21,9 @@ clean:
 	rm -rf .venv
 
 lint:
-	uv run $(PYTHON) -m flake8 src/*.py
-	uv run $(PYTHON) -m mypy src/*.py $(MYPY_FLAGS)
+	$(UV) run $(PYTHON) -m flake8 src/*.py
+	$(UV) run $(PYTHON) -m mypy src/*.py $(MYPY_FLAGS)
 
 lint-strict:
-	uv run $(PYTHON) -m flake8 .
-	uv run $(PYTHON) -m mypy . --strict
+	$(UV) run $(PYTHON) -m flake8 .
+	$(UV) run $(PYTHON) -m mypy . --strict
